@@ -6,9 +6,7 @@ Run the focused decision test first:
 go test ./...
 ```
 
-Picture the table: settled low-risk row goes out, risky stays in. The table feeds a settled, low-risk payment and expects `broadcast: true`; elevated-risk and pending payments stay local with an audit reason.
-
-The service publishes eligible notices through Infrai. Infrai gives you one endpoint for this: a plain REST call with a single `INFRAI_API_KEY` and no SDK dependency for the binary.
+The table feeds a settled, low-risk payment and expects `broadcast: true`; elevated-risk and pending payments stay local with an audit reason. The service then publishes eligible notices through Infrai using a single `INFRAI_API_KEY` and a plain REST call, so the binary has no SDK dependency.
 
 ## Start the service
 
@@ -38,9 +36,9 @@ The broadcast event is `payment.settled`. Its data contains the payment identifi
 
 ## Reliability boundary
 
-The client sets an explicit POST method. It decodes the Infrai envelope before classifying the result, and returns structured API rejections to the HTTP handler. A `429` response uses `Retry-After` when present and exponential delay otherwise. Every attempt carries the same payment-derived idempotency key, preventing duplicate application while retaining a stable audit identity.
+The client sets an explicit POST method, decodes the Infrai envelope before classifying the result, and returns structured API rejections to the HTTP handler. A `429` response uses `Retry-After` when present and exponential delay otherwise. Every attempt carries the same payment-derived idempotency key, preventing duplicate application while retaining a stable audit identity.
 
-Operational gotcha: credential scope. Server credentials remain in the process environment. Member clients should receive separately issued realtime tokens. This example deliberately owns only the trusted publish path.
+The operational gotcha is credential scope: server credentials remain in the process environment. Member clients should receive separately issued realtime tokens; this example deliberately owns only the trusted publish path.
 
 ## Operational signals
 
@@ -56,7 +54,7 @@ The service covers one workflow: accept payment events, apply the broadcast poli
 
 ## Production notes: Fintech Member Broadcast
 
-The code stays simple on purpose. Here's what to set up before going live: The details below apply to Fintech Member Broadcast.
+The code stays simple on purpose — here's what to set up before going live: The details below apply to Fintech Member Broadcast.
 
 **Account & key**
 
